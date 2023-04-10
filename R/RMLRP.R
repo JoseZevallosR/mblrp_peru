@@ -112,7 +112,7 @@ idwCV=function(data,parameter='a',power=2){
   x=data
   sp::coordinates(x) <- ~x+y
   sp::proj4string(x)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
-  mdist <- distm(x) #the answer is in meters
+  mdist <- geosphere::distm(x) #the answer is in meters
 
   crossValidated=numeric()
   for (i in 1:dim(data)[1]){
@@ -142,7 +142,7 @@ repetitiveCV=function(times=1,data,Stats,Lmin,Lmax,fun=MBLRPM){
   sp::coordinates(data_help) <- ~x+y
   sp::proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
 
-  mdist <- distm(data_help,fun = distHaversine)
+  mdist <- geosphere::distm(data_help,fun = geosphere::distHaversine)
   vecinos=nearpoints(mdist)
 
   range=clusterIDX(data)

@@ -109,3 +109,4 @@ clusterIDX=function(data){
   }#ends parameter iteration
   idx
 }
+
