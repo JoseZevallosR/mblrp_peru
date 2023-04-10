@@ -18,8 +18,8 @@
 
 
 points_wgs84=function(data){
-  coordinates(data) <- ~x+y
-  proj4string(data)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+  sp::coordinates(data) <- ~x+y
+  sp::proj4string(data)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
   data
 }
 
@@ -44,9 +44,9 @@ coords_correction=function(mapa){
 kickOutliers=function(data){
   #delete neighbors based on variance outliers
   data_help=data
-  coordinates(data_help) <- ~x+y
-  proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
-  mdist <- distm(data_help,fun = distHaversine)
+  sp::coordinates(data_help) <- ~x+y
+  sp::proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+  mdist <- geosphere::distm(data_help,fun = geosphere::distHaversine)
   neighbors=nearpoints(mdist)
   outlier=c()
   for (station in 1:dim(data)[1]){
@@ -69,9 +69,9 @@ filter_Neigbors=function(data,min_n=3,radio=60000){
   while (n_old-n_new!=0){
     n_old=dim(data)[1]
     data_help=data
-    coordinates(data_help) <- ~x+y
-    proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
-    mdist <- distm(data_help,fun = distHaversine)
+    sp::coordinates(data_help) <- ~x+y
+    sp::proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+    mdist <- geosphere::distm(data_help,fun = geosphere::distHaversine)
     neighbors=nearpoints(mdist,radio=radio)
     data=data[lengths(neighbors)>=min_n,]
     n_new=dim(data)[1]
@@ -94,10 +94,10 @@ clusterIDX=function(data){
 
 
   data_help=data
-  coordinates(data_help) <- ~x+y
-  proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+  sp::coordinates(data_help) <- ~x+y
+  sp::proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
 
-  mdist <- distm(data_help,fun = distHaversine)
+  mdist <- geosphere::distm(data_help,fun = geosphere::distHaversine)
   vecinos=nearpoints(mdist)
 
   idx=c()

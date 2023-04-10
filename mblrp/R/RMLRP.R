@@ -1,84 +1,21 @@
 ####################################
-###Model Statistics#################
-####################################
-#Mean
-meanMBLRPM<-function(a,l,v,k,f,mx,h=1) {
-  x<-(h*l*mx*v*(1+k/f))/(a-1)
-  return(x)
-}
-#Variance
-varMBLRPM<-function(a,l,v,k,f,mx,h=1) {
-  A<-(2*l*(1+k/f)*(mx^2)*(v^a))/((f^2)*((f^2)-1)*(a-1)*(a-2)*(a-3))
-  B<-(2*(f^2)-2+k*f)*(f^2)*((a-3)*h*(v^(2-a))-(v^(3-a))+((v+h)^(3-a)))
-  C<-k*(f*(a-3)*h*(v^(2-a))-(v^(3-a))+((v+f*h)^(3-a)))
-  D<-A*(B-C)
-  return(D)
-}
-#Covariance
-covarMBLRPM<-function(a,l,v,k,f,mx,h=1,lag=1) {
-  A<-(l*(1+k/f)*(mx^2)*(v^a))/((f^2)*((f^2)-1)*(a-1)*(a-2)*(a-3))
-  B<-(2*(f^2)-2+k*f)*(f^2)*(((v+(lag+1)*h)^(3-a))-2*((v+lag*h)^(3-a))+((v+(lag-1)*h)^(3-a)))
-  C<-k*(((v+(lag+1)*h*f)^(3-a))-(2*((v+h*lag*f)^(3-a)))+((v+(lag-1)*h*f)^(3-a)))
-  D<-A*(B-C)
-  return(D)
-}
-#Dry probabilities
-#pdrRPBLRPM<-function(a,l,v,k,f,h=1) {
-#    mt<-((1+(f*(k+f))-(0.25*f*(k+f)*(k+4*f))+((f/72)*(k+f)*(4*(k^2)+27*k*f+72*(f^2))))*v)/(f*(a-1))
-#    G00<-((1-k-f+1.5*k*f+(f^2)+0.5*(k^2))*v)/(f*(a-1))
-#    A<-(f+(k*(v/(v+(k+f)*h))^(a-1)))/(f+k)
-#    D<-exp(l*(-h-mt+G00*A))
-#    return(D)
-#}
-
-####################################
 #######Optimization Function########
 ####################################
 
 MBLRPM=function(mean24,var24,cov24lag1,pdr24,var3,cov3lag1,var6,var12,var18,Lmin,Lmax){
-  ####################################
-  ###Model Statistics#################
-  ####################################
-  #Mean
-  meanMBLRPM<-function(a,l,v,k,f,mx,h=1) {
-    x<-(h*l*mx*v*(1+k/f))/(a-1)
-    return(x)
-  }
-  #Variance
-  varMBLRPM<-function(a,l,v,k,f,mx,h=1) {
-    A<-(2*l*(1+k/f)*(mx^2)*(v^a))/((f^2)*((f^2)-1)*(a-1)*(a-2)*(a-3))
-    B<-(2*(f^2)-2+k*f)*(f^2)*((a-3)*h*(v^(2-a))-(v^(3-a))+((v+h)^(3-a)))
-    C<-k*(f*(a-3)*h*(v^(2-a))-(v^(3-a))+((v+f*h)^(3-a)))
-    D<-A*(B-C)
-    return(D)
-  }
-  #Covariance
-  covarMBLRPM<-function(a,l,v,k,f,mx,h=1,lag=1) {
-    A<-(l*(1+k/f)*(mx^2)*(v^a))/((f^2)*((f^2)-1)*(a-1)*(a-2)*(a-3))
-    B<-(2*(f^2)-2+k*f)*(f^2)*(((v+(lag+1)*h)^(3-a))-2*((v+lag*h)^(3-a))+((v+(lag-1)*h)^(3-a)))
-    C<-k*(((v+(lag+1)*h*f)^(3-a))-(2*((v+h*lag*f)^(3-a)))+((v+(lag-1)*h*f)^(3-a)))
-    D<-A*(B-C)
-    return(D)
-  }
-  #Dry probabilities
-  #pdrRPBLRPM<-function(a,l,v,k,f,h=1) {
-  #  mt<-((1+(f*(k+f))-(0.25*f*(k+f)*(k+4*f))+((f/72)*(k+f)*(4*(k^2)+27*k*f+72*(f^2))))*v)/(f*(a-1))
-  #  G00<-((1-k-f+1.5*k*f+(f^2)+0.5*(k^2))*v)/(f*(a-1))
-  #  A<-(f+(k*(v/(v+(k+f)*h))^(a-1)))/(f+k)
-  #  D<-exp(l*(-h-mt+G00*A))
-  #  return(D)
-  #}
+
+
   symvar<- function(a,l,v,k,f,mx,h,var){
-    (1-varMBLRPM(a,l,v,k,f,mx,h)/var)^(2)+(1-var/varMBLRPM(a,l,v,k,f,mx,h))^(2)
+    (1-HyetosMinute::varRPBLRPM(a,l,v,k,f,mx,h,weibTF = T,sxmx = 1)/var)**(2)+(1-var/HyetosMinute::varRPBLRPM(a,l,v,k,f,mx,h,weibTF = T,sxmx = 1))^(2)
   }
   symcovar <- function(a,l,v,k,f,mx,h,cov){
-    (1-covarMBLRPM(a,l,v,k,f,mx,h)/cov)^(2)+(1-cov/covarMBLRPM(a,l,v,k,f,mx,h))^(2)
+    (1-HyetosMinute::covarRPBLRPM(a,l,v,k,f,mx,h,weibTF = T,sxmx = 1,lag = 1)/cov)^(2)+(1-cov/HyetosMinute::covarRPBLRPM(a,l,v,k,f,mx,h,weibTF = T,sxmx = 1,lag = 1))^(2)
   }
   symmean <- function(a,l,v,k,f,mx,h,meann){
-    (1-meanMBLRPM(a,l,v,k,f,mx,h)/meann)^(2)+(1-meann/meanMBLRPM(a,l,v,k,f,mx,h))^(2)
+    (1-HyetosMinute::meanRPBLRPM(a,l,v,k,f,mx,h)/meann)^(2)+(1-meann/HyetosMinute::meanRPBLRPM(a,l,v,k,f,mx,h))^(2)
   }
   sympdr <- function(a,l,v,k,f,h,pdrr) {
-    (1-pdrRPBLRPM(a,l,v,k,f,h)/pdrr)^(2)+(1-pdrr/pdrRPBLRPM(a,l,v,k,f,h))^(2)
+    (1-HyetosMinute::pdrRPBLRPM(a,l,v,k,f,h)/pdrr)^(2)+(1-pdrr/HyetosMinute::pdrRPBLRPM(a,l,v,k,f,h))^(2)
   }
   #Objective function
   fopt <- function(x) {
@@ -101,8 +38,6 @@ MBLRPM=function(mean24,var24,cov24lag1,pdr24,var3,cov3lag1,var6,var12,var18,Lmin
 
     S<-S24+S3+S6+S12+S18
 
-
-
     if(is.infinite(S)) {S<-10^8}
     if(is.na(S)) {S<-10^8}
     return(S)
@@ -112,7 +47,7 @@ MBLRPM=function(mean24,var24,cov24lag1,pdr24,var3,cov3lag1,var6,var12,var18,Lmin
   xmin <- Lmin
   xmax <- Lmax
   xlow <- Lmin
-  xup <- c(50,20,runif(1,min = 1.8, max = 2.2),runif(1,min = 0.05, max = 0.09),runif(1,min = 1.8, max = 2.2),runif(1,min = 8, max = 12))
+  xup  <- Lmax
 
   modecal <- eas(n=6,m=30,xmin,xmax,xlow,xup,fn=fopt,maxeval=5000,ftol=1.e-10,ratio=0.99,pmut=0.95, beta=2,maxclimbs=5)
   modecal
@@ -175,8 +110,8 @@ nearpoints=function(mdist,radio=60000){
 ################################################
 idwCV=function(data,parameter='a',power=2){
   x=data
-  coordinates(x) <- ~x+y
-  proj4string(x)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+  sp::coordinates(x) <- ~x+y
+  sp::proj4string(x)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
   mdist <- distm(x) #the answer is in meters
 
   crossValidated=numeric()
@@ -204,8 +139,8 @@ repetitiveCV=function(times=1,data,Stats,Lmin,Lmax,fun=MBLRPM){
 
   parameters=data[,3:8]
   data_help=data
-  coordinates(data_help) <- ~x+y
-  proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
+  sp::coordinates(data_help) <- ~x+y
+  sp::proj4string(data_help)='+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0'
 
   mdist <- distm(data_help,fun = distHaversine)
   vecinos=nearpoints(mdist)
@@ -265,7 +200,7 @@ repetitiveCV=function(times=1,data,Stats,Lmin,Lmax,fun=MBLRPM){
           #register it to be used by %dopar%
           doParallel::registerDoParallel(cl = my.cluster)
 
-          parameters[mistakes,]=t(matrix(foreach(
+          parameters[mistakes,]=t(matrix(foreach::foreach(
             i=mistakes,
             .combine = 'c',
             .packages = "HyetosMinute"
@@ -312,18 +247,12 @@ repetitiveCV=function(times=1,data,Stats,Lmin,Lmax,fun=MBLRPM){
 ##########################################
 ###### Run Function#######################
 ##########################################
-run=function(rain_stats,path,iterations=5,fun=MBLRPM,FILE_NAME){
+run=function(rain_stats,path,iterations=5,Lmin,Lmax,fun=MBLRPM,FILE_NAME){
   #rain_stats: contains the rainfall statistics
   #path: where to save the results
   #Maskshape: Shape form of the final results
 
-
   n=dim(rain_stats)[1]
-
-  #Maximum and minimum search parameters space
-  Lmin=matrix(c(0.1,0.001,0.001,0.001,0.0854,1),nrow = 6,ncol = n)
-  Lmax=matrix(c(4,0.1,0.1,0.1,0.1,20),nrow=6,ncol=n)
-
 
   #print('Calculating the initial parameters ...')
   #Initial parameters
@@ -338,7 +267,7 @@ run=function(rain_stats,path,iterations=5,fun=MBLRPM,FILE_NAME){
   #register it to be used by %dopar%
   doParallel::registerDoParallel(cl = my.cluster)
 
-  parameters0=t(matrix(foreach(
+  parameters0=t(matrix(foreach::foreach(
     i=1:n,
     .combine = 'c',
     .packages = "HyetosMinute"
@@ -388,10 +317,10 @@ SimStats= function(parameters){
     est=numeric(16)
     iter=0
     for (j in c(24,3,6,12)){
-      m=meanMBLRPM(par[1],par[2],par[3],par[4],par[5],par[6],h=j/24)
-      v=varMBLRPM(par[1],par[2],par[3],par[4],par[5],par[6],h=j/24)
-      cov=covarMBLRPM(par[1],par[2],par[3],par[4],par[5],par[6],h=j/24)
-      pdr=pdrRPBLRPM(par[1],par[2],par[3],par[4],par[5],h=j/24)
+      m=HyetosMinute::meanRPBLRPM(par[1],par[2],par[3],par[4],par[5],par[6],h=j/24)
+      v=HyetosMinute::varRPBLRPM(par[1],par[2],par[3],par[4],par[5],par[6],h=j/24,weibTF = T,sxmx = 1)
+      cov=HyetosMinute::covarRPBLRPM(par[1],par[2],par[3],par[4],par[5],par[6],h=j/24,weibTF = T,sxmx = 1,lag = 1)
+      pdr=HyetosMinute::pdrRPBLRPM(par[1],par[2],par[3],par[4],par[5],h=j/24)
       est[(1+iter*4):(4+iter*4)]=c(m,v,cov,pdr)
       iter=iter+1
     }
